@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RC Rover Control</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
+            background: linear-gradient(to bottom, #000814, #001a33);
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            color: #00aaff;
+            text-shadow: 0px 0px 10px #00aaff;
+        }
+        .dpad-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 40vh;
+        }
+        .dpad {
+            display: grid;
+            grid-template-areas:
+                " .  up  . "
+                "left middle right"
+                " . down . ";
+            gap: 10px;
+        }
+        .dpad button {
+            padding: 30px;
+            font-size: 20px;
+            border: none;
+            background-color: #002244;
+            color: #00aaff;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 170, 255, 0.5);
+            transition: 0.2s;
+            user-select: none;
+        }
+        .dpad button:active {
+            background-color: #00aaff;
+            color: black;
+            transform: scale(0.9);
+            box-shadow: 0 0 20px rgba(0, 170, 255, 1);
+        }
+        .up { grid-area: up; }
+        .down { grid-area: down; }
+        .left { grid-area: left; }
+        .right { grid-area: right; }
+        .middle { grid-area: middle; background: #004466; }
+
+        .slider-container {
+            width: 90%;
+            max-width: 400px;
+            margin: 20px auto;
+            text-align: center;
+            background-color: #002244;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 170, 255, 0.4);
+        }
+        .slider-container p {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #00aaff;
+        }
+        .slider {
+            width: 100%;
+            height: 10px;
+            border-radius: 5px;
+            background: linear-gradient(to right, #004488, #00aaff);
+            transition: background 0.3s;
+        }
+        .slider::-webkit-slider-thumb {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 170, 255, 0.8);
+        }
+
+        .data-container {
+            margin-top: 20px;
+            background: #002244;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 170, 255, 0.4);
+            width: 90%;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .data-container h2 {
+            color: #00aaff;
+        }
+
+        #status {
+            color: #00ffff;
+            font-size: 18px;
+            margin-top: 20px;
+            text-shadow: 0px 0px 10px #00ffff;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Rover Control</h1>
+
+    <div class="dpad-container">
+        <div class="dpad">
+            <button class="up" onmousedown="sendCommand('forward')" onmouseup="sendCommand('stop')" ontouchstart="sendCommand('forward')" ontouchend="sendCommand('stop')">&#9650;</button>
+            <button class="down" onmousedown="sendCommand('backward')" onmouseup="sendCommand('stop')" ontouchstart="sendCommand('backward')" ontouchend="sendCommand('stop')">&#9660;</button>
+            <button class="left" onmousedown="sendCommand('left')" onmouseup="sendCommand('stop')" ontouchstart="sendCommand('left')" ontouchend="sendCommand('stop')">&#9668;</button>
+            <button class="right" onmousedown="sendCommand('right')" onmouseup="sendCommand('stop')" ontouchstart="sendCommand('right')" ontouchend="sendCommand('stop')">&#9658;</button>
+            <button class="middle" onclick="sendCommand('scoop')">Scoop</button>
+        </div>
+    </div>
+
+    <div class="slider-container">
+        <p>Speed: <span id="value">50</span>%</p>
+        <input type="range" min="1" max="100" value="50" class="slider" id="speedSlider">
+    </div>
+
+    <div class="data-container">
+        <h2>Rover Data</h2>
+        <p>Humidity: <span id="humidity">-</span>%</p>
+        <p>Temperature: <span id="temperature">-</span>°C</p>
+        <p>Distance: <span id='distance'>-</span> cm</p>
+
+    </div>
+
+    <p id="status">Status: <span id="statusText">Idle</span></p>
+
+    <script>
+        // Create a new WebSocket for real time data and changes
+        var Socket;
+
+        var slider = document.getElementById('speedSlider');
+        var output = document.getElementById('value');
+        output.innerHTML = slider.value;
+
+        // Update the speed slider value when it is changed and send to the WebSocket
+        slider.oninput = function() {
+            output.innerHTML = this.value;
+            var obj = {
+                command: 'stop',  // Default command to stop when slider is adjusted
+                speed: this.value
+            };
+            Socket.send(JSON.stringify(obj));
+        }
+
+        // Sending the direction to the ESP32 while the button is held
+        function sendCommand(cmd) {
+            console.log("Sending command: " + cmd + " with speed: " + slider.value);
+            document.getElementById('statusText').innerHTML = cmd
+            var obj = {
+                command: cmd,
+                speed: slider.value
+            };
+            Socket.send(JSON.stringify(obj));
+        }
+
+        // Function to initialize the WebSocket
+        function init() {
+            Socket = new WebSocket('ws://' + window.location.hostname + ':81/');    // Connect to the WebSocket server
+            
+            // Console feedback for debugging
+            Socket.onopen = function() {
+                console.log('WebSocket Connected!');
+            };
+
+            Socket.onerror = function(error) {
+                console.log('WebSocket Error:', error);
+            };
+            
+            Socket.onmessage = function(event) {
+                console.log('Received Data:', event.data);
+                processCommand(event);
+            };
+        }
+        // Function to process the command received from the WebSocket (in this case, changing the inner html of the span elements to the temp and humidity data received)
+        function processCommand(event) {
+            // Parse the JSON object from the event and update the values on the HTML page
+            var jsonobj = JSON.parse(event.data);
+            document.getElementById('humidity').innerHTML = jsonobj.humidity;
+            document.getElementById('temperature').innerHTML = jsonobj.temperature;
+            document.getElementById('distance').innerHTML = jsonobj.distance;
+            console.log(jsonobj.humidity);    // Log the data to the console for debugging
+            console.log(jsonobj.temperature);
+        }   
+        // Call the init function when the page is loaded to start websocket
+        window.onload = function(event) {
+            init();
+        }
+    </script>
+
+</body>
+</html>
