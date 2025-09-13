@@ -2,6 +2,13 @@
 
 This project is a Wi-Fi controlled RC Rover built using an ESP32 microcontroller. The rover can be driven through a web interface that runs in any browser on the same network. It also streams real-time sensor data (temperature, humidity, distance) and features a servo-operated scoop for collecting samples.
 
+## Picture of the Rover
+![alt text](https://github.com/yuvraj-s420/RC-ESP32-Mars-Rover/blob/main/Rover_Image.jpg "Logo Title Text 1")
+
+## Picture of website
+![alt text](https://github.com/yuvraj-s420/RC-ESP32-Mars-Rover/blob/main/Website_Example.jpg "Logo Title Text 1")
+
+
 ## Features
 
 Web-based control panel (works on phone, tablet, or PC)
