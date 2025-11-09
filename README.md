@@ -11,44 +11,44 @@ This project is a Wi-Fi controlled RC Rover built using an ESP32 microcontroller
 
 ## Features
 
-Web-based control panel (works on phone, tablet, or PC)
+- Web-based control panel (works on phone, tablet, or PC)
 
-D-pad interface for forward, backward, left, right movement
+- D-pad interface for forward, backward, left, right movement
 
-Real-time speed control using a slider
+- Real-time speed control using a slider
 
-Scoop function using a servo motor
+- Scoop function using a servo motor
 
-Live data feed from sensors:
+- Live data feed from sensors:
 
-Temperature & Humidity (DHT11)
+- Temperature & Humidity (DHT11)
 
-Distance from ultrasonic sensor (for obstacle/cliff detection)
+- Distance from ultrasonic sensor (for obstacle/cliff detection)
 
-Cliff detection safety: Rover automatically stops if a drop-off is detected
+- Cliff detection safety: Rover automatically stops if a drop-off is detected
 
-DC motor control with PWM
+- DC motor control with PWM
 
-JSON-based communication via WebSockets for real-time updates
+- JSON-based communication via WebSockets for real-time updates
 
 ## Technologies Used
 
-ESP32 (Wi-Fi + WebSockets server)
+- ESP32 (Wi-Fi + WebSockets server)
 
-C++ / Arduino framework
+- C++ / Arduino framework
 
-Web Interface (HTML/CSS/JS) served from ESP32
+- Web Interface (HTML/CSS/JS) served from ESP32
 
-WebSockets for two-way communication between browser and rover
+- WebSockets for two-way communication between browser and rover
 
-DHT11 Sensor for temperature & humidity
+- DHT11 Sensor for temperature & humidity
 
-HC-SR04 Ultrasonic Sensor for distance/cliff detection
+- HC-SR04 Ultrasonic Sensor for distance/cliff detection
 
-Servo motor for scooping (mg90s)
+- Servo motor for scooping (mg90s)
 
-4x DC Motors (for rover movement)
+- 4x DC Motors (for rover movement)
 
-L298N (or compatible) motor driver
+- L298N (or compatible) motor driver
 
-Power supply (battery pack)
+- Power supply (battery pack)
